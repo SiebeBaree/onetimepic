@@ -20,8 +20,18 @@ export const DEFAULT_VIEW_SECONDS = 10;
 export const MIN_VIEW_SECONDS = 3;
 export const MAX_VIEW_SECONDS = 60;
 
-/** Never-opened uploads are swept after this age by the cleanup cron. */
-export const UPLOAD_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24h
+// How long the link stays available if no one opens it (the sender chooses).
+const HOUR = 60 * 60 * 1000;
+const DAY = 24 * HOUR;
+export const EXPIRY_OPTIONS = [
+  { label: "1 hour", ms: HOUR },
+  { label: "24 hours", ms: DAY },
+  { label: "3 days", ms: 3 * DAY },
+  { label: "7 days", ms: 7 * DAY },
+] as const;
+export const DEFAULT_EXPIRY_MS = DAY;
+/** Upper bound + fallback the cleanup cron uses for any blob without a deadline. */
+export const MAX_EXPIRY_MS = 7 * DAY;
 
 /** Blob key prefix for stored ciphertext. */
 export const BLOB_PREFIX = "p/";

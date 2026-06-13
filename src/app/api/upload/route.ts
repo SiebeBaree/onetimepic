@@ -1,10 +1,16 @@
+import { checkBotId } from "botid/server";
 import { type NextRequest, NextResponse } from "next/server";
 import { putCiphertext } from "@/lib/blob";
-import { MAX_CIPHERTEXT_BYTES, RATE_LIMIT, SOFT_COOKIE } from "@/lib/config";
+import {
+  DEFAULT_EXPIRY_MS,
+  EXPIRY_OPTIONS,
+  MAX_CIPHERTEXT_BYTES,
+  RATE_LIMIT,
+  SOFT_COOKIE,
+} from "@/lib/config";
 import { newId } from "@/lib/ids";
 import { getClientIp } from "@/lib/ip";
 import { checkUploadLimits } from "@/lib/ratelimit";
-import { checkBotId } from 'botid/server';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,7 +20,13 @@ const DAILY_LIMIT_MESSAGE = `Daily limit reached. You can share ${RATE_LIMIT.per
 export async function POST(request: NextRequest) {
   const verification = await checkBotId();
   if (verification.isBot) {
-    return NextResponse.json({ error: 'We think you are a bot. We do not allow bots to use our service.' }, { status: 403 });
+    return NextResponse.json(
+      {
+        error:
+          "We think you are a bot. We do not allow bots to use our service.",
+      },
+      { status: 403 },
+    );
   }
 
   const ip = getClientIp(request);
@@ -50,9 +62,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Image is too large." }, { status: 413 });
   }
 
+  // Availability window: how long the link stays openable if no one opens it.
+  // Only the values offered in the UI are accepted (no arbitrary long expiries).
+  const requestedExpiry = Number(request.headers.get("x-otp-expiry"));
+  const expiryMs = EXPIRY_OPTIONS.some(
+    (option) => option.ms === requestedExpiry,
+  )
+    ? requestedExpiry
+    : DEFAULT_EXPIRY_MS;
+
   const id = newId();
   try {
-    await putCiphertext(id, body);
+    await putCiphertext(id, body, expiryMs);
   } catch (error) {
     console.error("[upload] blob put failed", error);
     return NextResponse.json(

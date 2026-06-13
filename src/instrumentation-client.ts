@@ -1,9 +1,9 @@
 // Client-side instrumentation: initialize PostHog before hydration.
 // Runs only in the browser (Next.js instrumentation-client convention).
 
+import { initBotId } from "botid/client/core";
 import type { CaptureResult } from "posthog-js";
 import posthog from "posthog-js";
-import { initBotId } from 'botid/client/core';
 
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 
@@ -60,8 +60,8 @@ if (token) {
 initBotId({
   protect: [
     {
-      path: '/api/*',
-      method: 'POST',
+      path: "/api/*",
+      method: "POST",
     },
   ],
 });

@@ -4,7 +4,9 @@ import posthog from "posthog-js";
 import QRCode from "qrcode";
 import { useEffect, useRef, useState } from "react";
 import {
+  DEFAULT_EXPIRY_MS,
   DEFAULT_VIEW_SECONDS,
+  EXPIRY_OPTIONS,
   MAX_INPUT_BYTES,
   VIEW_SECONDS_OPTIONS,
 } from "@/lib/config";
@@ -16,12 +18,13 @@ type State =
   | { step: "idle" }
   | { step: "ready"; file: File; previewUrl: string }
   | { step: "working"; phase: Phase; previewUrl: string }
-  | { step: "done"; link: string; seconds: number }
+  | { step: "done"; link: string; seconds: number; expiryLabel: string }
   | { step: "error"; message: string };
 
 export function Uploader() {
   const [state, setState] = useState<State>({ step: "idle" });
   const [seconds, setSeconds] = useState<number>(DEFAULT_VIEW_SECONDS);
+  const [expiry, setExpiry] = useState<number>(DEFAULT_EXPIRY_MS);
   const [watermark, setWatermark] = useState(true);
   const [dragging, setDragging] = useState(false);
   const previewRef = useRef<string | null>(null);
@@ -66,7 +69,10 @@ export function Uploader() {
       setState({ step: "working", phase: "uploading", previewUrl });
       const res = await fetch("/api/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/octet-stream" },
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "x-otp-expiry": String(expiry),
+        },
         body: payload,
       });
       if (!res.ok) {
@@ -76,8 +82,11 @@ export function Uploader() {
       const { id } = (await res.json()) as { id: string };
       setPreview(null);
       const link = `${window.location.origin}/v/${id}#${keyB64}.${seconds}`;
-      posthog.capture("photo_uploaded", { seconds, watermark });
-      setState({ step: "done", link, seconds });
+      const expiryLabel =
+        EXPIRY_OPTIONS.find((option) => option.ms === expiry)?.label ??
+        "24 hours";
+      posthog.capture("photo_uploaded", { seconds, watermark, expiry });
+      setState({ step: "done", link, seconds, expiryLabel });
     } catch (err) {
       setState({
         step: "error",
@@ -129,6 +138,26 @@ export function Uploader() {
                     className="pill flex-1 px-4 py-2.5 text-sm font-medium"
                   >
                     {s} seconds
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <span className="text-sm text-ash">
+                How long the link stays available
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {EXPIRY_OPTIONS.map((option) => (
+                  <button
+                    key={option.ms}
+                    type="button"
+                    aria-pressed={expiry === option.ms}
+                    data-active={expiry === option.ms}
+                    onClick={() => setExpiry(option.ms)}
+                    className="pill px-4 py-2.5 text-sm font-medium"
+                  >
+                    {option.label}
                   </button>
                 ))}
               </div>
@@ -195,7 +224,12 @@ export function Uploader() {
       )}
 
       {state.step === "done" && (
-        <DoneCard link={state.link} seconds={state.seconds} onReset={reset} />
+        <DoneCard
+          link={state.link}
+          seconds={state.seconds}
+          expiryLabel={state.expiryLabel}
+          onReset={reset}
+        />
       )}
 
       {state.step === "error" && (
@@ -300,10 +334,12 @@ function Preview({
 function DoneCard({
   link,
   seconds,
+  expiryLabel,
   onReset,
 }: {
   link: string;
   seconds: number;
+  expiryLabel: string;
   onReset: () => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -385,7 +421,7 @@ function DoneCard({
       <div className="rounded-2xl border border-ember/20 bg-ember/5 p-4 text-sm leading-relaxed text-ash">
         <span className="font-medium text-ember">This is the only copy.</span>{" "}
         Once it's opened, it's gone for everyone. If no one opens it, it's
-        deleted within 24 hours.
+        deleted after {expiryLabel}.
       </div>
 
       <button

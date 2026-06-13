@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { sweepExpired } from "@/lib/blob";
-import { UPLOAD_MAX_AGE_MS } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const removed = await sweepExpired(UPLOAD_MAX_AGE_MS);
+    const removed = await sweepExpired();
     return NextResponse.json({ removed });
   } catch (error) {
     console.error("[cron] cleanup failed", error);

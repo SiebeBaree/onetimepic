@@ -1,11 +1,14 @@
+import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
-import { withBotId } from 'botid/next/config';
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// BotID (Kasada) executes WebAssembly, so script-src needs 'wasm-unsafe-eval'.
+// PostHog and BotID both route through our own origin (see rewrites + withBotId),
+// so connect-src can stay 'self'.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' blob: data:",
   "font-src 'self'",

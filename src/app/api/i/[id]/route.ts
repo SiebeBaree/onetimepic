@@ -1,3 +1,4 @@
+import { checkBotId } from "botid/server";
 import { type NextRequest, NextResponse } from "next/server";
 import { takeCiphertext } from "@/lib/blob";
 import { isValidId } from "@/lib/ids";
@@ -11,6 +12,11 @@ export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const verification = await checkBotId();
+  if (verification.isBot) {
+    return new NextResponse("Access denied", { status: 403 });
+  }
+
   const { id } = await params;
   if (!isValidId(id)) {
     return new NextResponse("Not found", { status: 404 });
