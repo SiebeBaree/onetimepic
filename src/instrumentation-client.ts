@@ -3,6 +3,7 @@
 
 import type { CaptureResult } from "posthog-js";
 import posthog from "posthog-js";
+import { initBotId } from 'botid/client/core';
 
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 
@@ -55,3 +56,12 @@ if (token) {
     console.error("[posthog] init failed", error);
   }
 }
+
+initBotId({
+  protect: [
+    {
+      path: '/api/*',
+      method: 'POST',
+    },
+  ],
+});

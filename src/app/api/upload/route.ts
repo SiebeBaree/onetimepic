@@ -4,6 +4,7 @@ import { MAX_CIPHERTEXT_BYTES, RATE_LIMIT, SOFT_COOKIE } from "@/lib/config";
 import { newId } from "@/lib/ids";
 import { getClientIp } from "@/lib/ip";
 import { checkUploadLimits } from "@/lib/ratelimit";
+import { checkBotId } from 'botid/server';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +12,11 @@ export const dynamic = "force-dynamic";
 const DAILY_LIMIT_MESSAGE = `Daily limit reached. You can share ${RATE_LIMIT.perIpPerDay} photos per day.`;
 
 export async function POST(request: NextRequest) {
+  const verification = await checkBotId();
+  if (verification.isBot) {
+    return NextResponse.json({ error: 'We think you are a bot. We do not allow bots to use our service.' }, { status: 403 });
+  }
+
   const ip = getClientIp(request);
 
   // Layer 1: hard limits (per-IP/day + global/hour) when Redis is configured.

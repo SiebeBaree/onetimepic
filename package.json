@@ -13,6 +13,7 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "@vercel/blob": "^2.4.0",
+    "botid": "^1.5.11",
     "next": "16.2.9",
     "posthog-js": "^1.386.6",
     "qrcode": "^1.5.4",
