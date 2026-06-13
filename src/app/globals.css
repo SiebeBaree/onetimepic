@@ -1,26 +1,308 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   OneTimePic design tokens
+   Aesthetic: deep ink, warm ivory, a single luminous ember accent.
+   The "burns once" concept drives the motion language.
+   ───────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-ink-950: #08090b;
+  --color-ink-900: #0b0d10;
+  --color-ink-850: #0f1216;
+  --color-ink-800: #14181d;
+  --color-ink-700: #1b2026;
+  --color-ink-600: #252b32;
+
+  --color-ivory: #ece7df;
+  --color-ash: #9c988f;
+  --color-faint: #66635c;
+
+  --color-ember: #e9a35a;
+  --color-ember-bright: #f6c98b;
+  --color-ember-deep: #c9762f;
+
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: dark;
+  --hair: rgba(255, 255, 255, 0.08);
+  --hair-strong: rgba(255, 255, 255, 0.16);
+  --ember-glow: rgba(233, 163, 90, 0.35);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-ink-950);
+  color: var(--color-ivory);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-ember) 38%, transparent);
+  color: #fff;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ── Atmosphere: ember glow + base vignette + film grain ─────────────────── */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.atmosphere::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -20%;
+  width: min(1100px, 130vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-ember) 20%, transparent),
+    transparent 62%
+  );
+  filter: blur(30px);
+  opacity: 0.55;
+}
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 80% at 50% 0%,
+      transparent 40%,
+      rgba(0, 0, 0, 0.5) 100%
+    ),
+    radial-gradient(
+      80% 60% at 50% 110%,
+      color-mix(in srgb, var(--color-ember-deep) 10%, transparent),
+      transparent 70%
+    );
+}
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Surfaces ────────────────────────────────────────────────────────────── */
+.card {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-ink-800) 88%, transparent),
+    var(--color-ink-900)
+  );
+  border: 1px solid var(--hair);
+  border-radius: 26px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 40px 90px -50px rgba(0, 0, 0, 0.9);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+  user-select: none;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-ember);
+  outline-offset: 3px;
+}
+.btn-primary {
+  background: linear-gradient(
+    180deg,
+    var(--color-ember-bright),
+    var(--color-ember)
+  );
+  color: #271603;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 34px -10px var(--ember-glow);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 16px 44px -10px var(--ember-glow);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--hair-strong);
+  color: var(--color-ivory);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+/* ── Dropzone ────────────────────────────────────────────────────────────── */
+.dropzone {
+  border: 1.5px dashed var(--hair-strong);
+  border-radius: 20px;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+.dropzone:hover,
+.dropzone[data-drag="true"] {
+  border-color: var(--color-ember);
+  background: color-mix(in srgb, var(--color-ember) 6%, transparent);
+}
+
+/* ── Pills / segmented control ───────────────────────────────────────────── */
+.pill {
+  border: 1px solid var(--hair-strong);
+  border-radius: 9999px;
+  color: var(--color-ash);
+  transition:
+    color 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+  cursor: pointer;
+}
+.pill:hover {
+  color: var(--color-ivory);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.pill[data-active="true"] {
+  color: #271603;
+  background: linear-gradient(
+    180deg,
+    var(--color-ember-bright),
+    var(--color-ember)
+  );
+  border-color: transparent;
+  box-shadow: 0 6px 20px -8px var(--ember-glow);
+}
+
+.field {
+  font-family: var(--font-mono);
+  background: var(--color-ink-950);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  opacity: 0;
+  animation: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes ignite {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: brightness(2.2) blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+}
+.ignite {
+  animation: ignite 0.6s ease forwards;
+}
+
+@keyframes burn-away {
+  0% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+  }
+  28% {
+    filter: brightness(1.5) contrast(1.12) saturate(1.2);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(16px) brightness(2.4);
+    transform: scale(1.05);
+  }
+}
+.burn-away {
+  animation: burn-away 0.95s ease forwards;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up,
+  .ignite,
+  .burn-away,
+  .spin,
+  .pulse-soft {
+    animation: none;
+    opacity: 1;
+  }
 }
