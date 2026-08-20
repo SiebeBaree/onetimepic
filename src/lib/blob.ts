@@ -67,7 +67,7 @@ export async function takeCiphertext(id: string): Promise<ArrayBuffer | null> {
   } catch {
     return null;
   }
-  if (!result || result.statusCode !== 200) {
+  if (result?.statusCode !== 200) {
     await del(blob.pathname).catch(() => {});
     return null;
   }

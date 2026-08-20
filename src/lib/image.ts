@@ -37,7 +37,7 @@ export async function processImage(file: File): Promise<ProcessedImage> {
 
     let format = FORMAT_WEBP;
     let blob = await encode(canvas, "image/webp", quality);
-    if (!blob || blob.type !== "image/webp") {
+    if (blob?.type !== "image/webp") {
       format = FORMAT_JPEG;
       blob = await encode(canvas, "image/jpeg", quality);
     }
