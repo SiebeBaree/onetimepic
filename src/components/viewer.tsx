@@ -209,95 +209,101 @@ export function Viewer({ id }: { id: string }) {
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-8">
         {/* context-menu / drag are blocked by the window-level listeners in the deterrent effect */}
         <div
-          className={`relative select-none overflow-hidden rounded-2xl border border-white/10 bg-ink-950 shadow-2xl ${
-            burning ? "burn-away" : ""
+          className={`materialize glass relative select-none overflow-hidden rounded-3xl p-1.5 ${
+            burning ? "dissolve" : ""
           }`}
         >
-          <canvas
-            ref={canvasRef}
-            className="block max-w-full touch-none"
-            style={{ WebkitTouchCallout: "none", userSelect: "none" }}
-          />
-          <CountdownRing seconds={Math.ceil(remaining)} progress={progress} />
+          <div className="relative z-[2] overflow-hidden rounded-[18px] bg-black/50">
+            <canvas
+              ref={canvasRef}
+              className="block max-w-full touch-none"
+              style={{ WebkitTouchCallout: "none", userSelect: "none" }}
+            />
+            <CountdownRing seconds={Math.ceil(remaining)} progress={progress} />
 
-          {blackout && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black text-center">
-              <FlameMark size={26} />
-              <p className="text-sm text-ash">Hidden while you're away</p>
-              <p className="max-w-[240px] text-xs text-faint">
-                Come back to this tab to keep viewing. The timer is still
-                running.
-              </p>
-            </div>
-          )}
+            {blackout && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black text-center">
+                <FlameMark size={26} />
+                <p className="text-sm text-mist">Hidden while you're away</p>
+                <p className="max-w-[240px] text-xs text-faint">
+                  Come back to this tab to keep viewing. The timer is still
+                  running.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
-        <p className="mt-5 text-sm text-ash">
+        <p className="mt-5 text-sm text-mist">
           This photo disappears when the timer ends.
         </p>
-        {notice && <p className="mt-2 text-xs text-ember">{notice}</p>}
+        {notice && (
+          <p className="materialize mt-2 text-xs text-glacier">{notice}</p>
+        )}
       </main>
     );
   }
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-      <div className="card w-full max-w-md p-8 text-center">
-        {view.step === "init" && <Centered>Preparing…</Centered>}
+      <div className="glass w-full max-w-md rounded-[28px] p-8 text-center">
+        <div className="relative z-[2]">
+          {view.step === "init" && <Centered>Preparing…</Centered>}
 
-        {view.step === "loading" && (
-          <Centered>
-            <span className="spin mb-4 inline-block size-7 rounded-full border-2 border-ember border-t-transparent" />
-            Unlocking the photo…
-          </Centered>
-        )}
+          {view.step === "loading" && (
+            <Centered>
+              <span className="spin mb-4 inline-block size-7 rounded-full border-2 border-glacier border-t-transparent" />
+              Unlocking the photo…
+            </Centered>
+          )}
 
-        {view.step === "intro" && (
-          <div className="flex flex-col items-center gap-5">
-            <span className="flex size-16 items-center justify-center rounded-full border border-white/10 bg-ink-800">
-              <FlameMark size={28} />
-            </span>
-            <div className="flex flex-col gap-2">
-              <h1 className="font-display text-2xl text-ivory">
-                Someone sent you a one-time photo
-              </h1>
-              <p className="text-sm leading-relaxed text-ash">
-                It can be opened <span className="text-ivory">once</span>.
-                You'll have{" "}
-                <span className="text-ivory">{view.seconds} seconds</span>, then
-                it's gone. Open it when you're ready.
+          {view.step === "intro" && (
+            <div className="rise flex flex-col items-center gap-5">
+              <span className="breathe">
+                <FlameMark size={34} />
+              </span>
+              <div className="flex flex-col gap-2">
+                <h1 className="text-[22px] font-semibold leading-snug tracking-tight text-frost">
+                  Someone sent you a one-time photo
+                </h1>
+                <p className="text-[15px] leading-relaxed text-mist">
+                  It can be opened <span className="text-frost">once</span>.
+                  You'll have{" "}
+                  <span className="text-frost">{view.seconds} seconds</span>,
+                  then it's gone. Open it when you're ready.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => reveal(view.seconds)}
+                className="btn btn-primary specular w-full px-6 py-4 text-[17px]"
+              >
+                Reveal photo
+              </button>
+              <p className="text-[13px] text-faint">
+                Encrypted, and opens only once.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => reveal(view.seconds)}
-              className="btn btn-primary w-full px-5 py-3.5 text-[15px]"
-            >
-              Reveal photo
-            </button>
-            <p className="text-xs text-faint">
-              Encrypted, and opens only once.
-            </p>
-          </div>
-        )}
+          )}
 
-        {view.step === "destroyed" && (
-          <Outcome
-            title="Poof, it's gone"
-            body="The photo was shown once and has been permanently deleted. There's no way to see it again."
-          />
-        )}
+          {view.step === "destroyed" && (
+            <Outcome
+              title="Poof, it's gone"
+              body="The photo was shown once and has been permanently deleted. There's no way to see it again."
+            />
+          )}
 
-        {view.step === "gone" && (
-          <Outcome
-            title="This photo is no longer here"
-            body="It's already been viewed, or it expired before anyone opened it. One-time means one time."
-          />
-        )}
+          {view.step === "gone" && (
+            <Outcome
+              title="This photo is no longer here"
+              body="It's already been viewed, or it expired before anyone opened it. One-time means one time."
+            />
+          )}
 
-        {view.step === "error" && (
-          <Outcome title="This link won't open" body={view.message} />
-        )}
+          {view.step === "error" && (
+            <Outcome title="This link won't open" body={view.message} />
+          )}
+        </div>
       </div>
     </main>
   );
@@ -307,7 +313,7 @@ export function Viewer({ id }: { id: string }) {
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center py-6 text-sm text-ash">
+    <div className="flex flex-col items-center justify-center py-6 text-sm text-mist">
       {children}
     </div>
   );
@@ -315,15 +321,20 @@ function Centered({ children }: { children: React.ReactNode }) {
 
 function Outcome({ title, body }: { title: string; body: string }) {
   return (
-    <div className="flex flex-col items-center gap-5">
-      <span className="flex size-16 items-center justify-center rounded-full border border-white/10 bg-ink-800 opacity-70">
-        <FlameMark size={26} />
+    <div className="materialize flex flex-col items-center gap-5">
+      <span className="opacity-60">
+        <FlameMark size={30} />
       </span>
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-2xl text-ivory">{title}</h1>
-        <p className="text-sm leading-relaxed text-ash">{body}</p>
+        <h1 className="text-[22px] font-semibold leading-snug tracking-tight text-frost">
+          {title}
+        </h1>
+        <p className="text-[15px] leading-relaxed text-mist">{body}</p>
       </div>
-      <Link href="/" className="btn btn-primary px-5 py-3 text-sm">
+      <Link
+        href="/"
+        className="btn btn-primary specular px-5 py-3.5 text-[15px]"
+      >
         Send your own one-time photo
       </Link>
     </div>
@@ -340,37 +351,45 @@ function CountdownRing({
   const r = 18;
   const circ = 2 * Math.PI * r;
   return (
-    <div className="absolute right-3 top-3 flex size-12 items-center justify-center rounded-full bg-ink-950/70 backdrop-blur">
-      <svg
-        width="44"
-        height="44"
-        viewBox="0 0 44 44"
-        className="-rotate-90"
-        aria-hidden="true"
-      >
-        <circle
-          cx="22"
-          cy="22"
-          r={r}
-          fill="none"
-          stroke="rgba(255,255,255,0.14)"
-          strokeWidth="3"
-        />
-        <circle
-          cx="22"
-          cy="22"
-          r={r}
-          fill="none"
-          stroke="var(--color-ember)"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={circ * (1 - progress)}
-        />
-      </svg>
-      <span className="absolute font-mono text-xs font-medium text-ivory">
-        {seconds}
-      </span>
+    <div className="absolute right-3 top-3">
+      <div className="glass glass-chip size-12">
+        <svg
+          width="44"
+          height="44"
+          viewBox="0 0 44 44"
+          className="relative z-[2] -rotate-90"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="otp-ring" x1="0" y1="0" x2="44" y2="44">
+              <stop offset="0" stopColor="#64d2ff" />
+              <stop offset="1" stopColor="#9d4ee8" />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="22"
+            cy="22"
+            r={r}
+            fill="none"
+            stroke="rgba(255,255,255,0.14)"
+            strokeWidth="3"
+          />
+          <circle
+            cx="22"
+            cy="22"
+            r={r}
+            fill="none"
+            stroke="url(#otp-ring)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={circ * (1 - progress)}
+          />
+        </svg>
+        <span className="absolute z-[2] font-mono text-xs font-medium text-frost">
+          {seconds}
+        </span>
+      </div>
     </div>
   );
 }

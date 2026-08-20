@@ -2,18 +2,25 @@ import { Uploader } from "@/components/uploader";
 
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-6 pb-20 pt-10 sm:pt-20">
+    <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5 pb-16 pt-16 sm:pt-24">
       <section className="flex flex-col items-center text-center">
         <h1
-          className="fade-up font-display text-4xl leading-[1.1] tracking-tight text-ivory sm:text-5xl"
+          className="rise text-[40px] font-semibold leading-[1.05] tracking-[-0.035em] text-frost sm:text-[54px]"
           style={{ animationDelay: "40ms" }}
         >
-          Share a photo that opens{" "}
-          <span className="italic text-ember">once</span>.
+          Share a photo
+          <br />
+          that opens <span className="text-aurora">once</span>.
         </h1>
+        <p
+          className="rise mt-5 max-w-sm text-[17px] leading-relaxed text-mist"
+          style={{ animationDelay: "140ms" }}
+        >
+          Encrypted on your device. Gone after one view. No account.
+        </p>
       </section>
 
-      <div className="fade-up mt-8" style={{ animationDelay: "200ms" }}>
+      <div className="rise mt-12" style={{ animationDelay: "260ms" }}>
         <Uploader />
       </div>
     </main>

@@ -1,11 +1,11 @@
-// Wordmark + ember flame mark. The flame ties to the "burns once" concept and
-// the accent color; the gradient + soft glow give it a premium feel.
+// Wordmark + flame mark. The flame is the one warm element in the design:
+// a single ember against the cool glass, tying to "burns once".
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <FlameMark />
-      <span className="text-[15px] font-medium tracking-tight text-ivory">
-        OneTime<span className="text-ember">Pic</span>
+      <span className="text-[15px] font-medium tracking-tight text-frost">
+        OneTime<span className="text-mist">Pic</span>
       </span>
     </span>
   );
@@ -20,13 +20,13 @@ export function FlameMark({ size = 22 }: { size?: number }) {
       fill="none"
       role="img"
       aria-label="OneTimePic"
-      style={{ filter: "drop-shadow(0 0 6px var(--ember-glow))" }}
+      style={{ filter: "drop-shadow(0 0 8px rgba(255, 130, 60, 0.45))" }}
     >
       <title>OneTimePic</title>
       <defs>
         <linearGradient id="otp-flame" x1="12" y1="2" x2="12" y2="22">
-          <stop offset="0" stopColor="var(--color-ember-bright)" />
-          <stop offset="1" stopColor="var(--color-ember-deep)" />
+          <stop offset="0" stopColor="#ffc06b" />
+          <stop offset="1" stopColor="#ff5f3d" />
         </linearGradient>
       </defs>
       <path

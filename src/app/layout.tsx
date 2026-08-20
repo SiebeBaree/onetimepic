@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { LiquidRuntime } from "@/components/liquid";
 import { Logo } from "@/components/logo";
 import "./globals.css";
 
@@ -12,14 +13,6 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
-
-// Distinctive optical serif for display.
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -39,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08090b",
+  themeColor: "#05050c",
 };
 
 export default function RootLayout({
@@ -50,28 +43,32 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <div className="atmosphere" aria-hidden="true" />
-        <div className="grain" aria-hidden="true" />
+        <LiquidRuntime />
+        <div className="aurora" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
 
-        <header className="w-full">
-          <div className="mx-auto max-w-xl px-6 py-6">
-            <Link
-              href="/"
-              className="inline-block rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-4"
-              aria-label="OneTimePic home"
-            >
-              <Logo />
-            </Link>
-          </div>
+        {/* No nav bar: this app has nothing to navigate. Identity sits
+            quietly on the canvas. */}
+        <header className="flex justify-center pt-9">
+          <Link
+            href="/"
+            aria-label="OneTimePic home"
+            className="rounded-lg opacity-80 outline-none transition-opacity duration-300 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-glacier focus-visible:outline-offset-4"
+          >
+            <Logo />
+          </Link>
         </header>
 
         <div className="flex flex-1 flex-col">{children}</div>
 
         <footer className="w-full">
-          <div className="mx-auto max-w-xl px-6 py-10">
+          <div className="mx-auto max-w-md px-6 py-10">
             <p className="text-center text-xs leading-relaxed text-faint">
               Your photo is encrypted on your device and deleted after one view.
               Screenshots can't be fully blocked, so only share with people you
